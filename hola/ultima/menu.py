@@ -29,9 +29,10 @@ cruz = pygame.Rect(740, 10, 40, 40)
 try:
     fondo = pygame.image.load("PAU.png")
     fondo = pygame.transform.smoothscale(fondo, (ancho, alto))
+    
 except:
     fondo = pygame.Surface((ancho, alto))
-    fondo.fill((100, 150, 200))
+    
 
 
 while ejecutando:
