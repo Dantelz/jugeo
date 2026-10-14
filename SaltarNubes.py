@@ -1,8 +1,7 @@
-import pygame
-import random, os
 
-jugando = True
-game_over = False
+import pygame
+import os
+import random
 
 def encontrar_archivo(nombre):
     carpeta_raiz = os.path.dirname(__file__)
@@ -11,45 +10,74 @@ def encontrar_archivo(nombre):
 
 pygame.init()
 
+jugando = True
+game_over = False
+
 ANCHO = 800
 ALTO = 500
 
 ventana = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Salta nube")
+pygame.display.set_caption("Salto nubes")
+
 reloj = pygame.time.Clock()
 
 fondo = pygame.image.load(encontrar_archivo("salto.png"))
-pau = pygame.image.load(encontrar_archivo("paulanube.png"))
-
 fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
-pau = pygame.transform.scale(pau, (80, 80))
 
-ancho_pau = 60
-alto_pau = 60
+pau = pygame.image.load(encontrar_archivo("paulanube.png"))
+pau = pygame.transform.scale(pau, (80,80))
+
+plataforma_imagen = pygame.image.load(encontrar_archivo("plataforma.png"))
+plataforma_imagen = pygame.transform.scale(plataforma_imagen, (100, 100))
+
+ANCHO_PAU = 55
+ALTO_PAU = 55
+ANCHO_PLATAFORMA = 100
+ALTO_PLATAFORMA = 25
 
 x_pau = ANCHO // 2
 y_pau = ALTO - 150
 
-velocidad_x = 6
+velocidad_x = 0
 velocidad_y = 0
 gravedad = 0.4
-f_salto = -11
+salto = -11
 
-ancho_plataforma = 90
-alto_plataforma = 15
 velocidad_plataformas = 0
 
 plataformas = []
 
-plataformas.append(pygame.Rect(ANCHO // 2 - 45, ALTO - 70, ancho_plataforma, alto_plataforma))
+plataforma_inicial = pygame.Rect(
+    ANCHO // 2 - 50,
+    ALTO - 70,
+    ANCHO_PLATAFORMA,
+    ALTO_PLATAFORMA
+)
 
-for i in range(7):
-    x_plataforma = random.randint(0, ANCHO - ancho_plataforma)
-    y_plataforma = ALTO - 140 - i * 65
-    plataformas.append(pygame.Rect(x_plataforma, y_plataforma, ancho_plataforma, alto_plataforma))
+plataformas.append(plataforma_inicial)
 
+for i in range(1, 9):
+
+    anterior = plataformas[-1]
+
+    x = random.randint(0, ANCHO - ANCHO_PLATAFORMA)
+    y = anterior.y - random.randint(55, 85)
+
+    nueva_plataforma = pygame.Rect(
+        x,
+        y,
+        ANCHO_PLATAFORMA,
+        ALTO_PLATAFORMA
+    )
+
+    plataformas.append(nueva_plataforma)
+
+camara_y = 0
 puntos = 0
+record = 0
+
 fuente = pygame.font.Font(None, 35)
+fuente_grande = pygame.font.Font(None, 60)
 
 while jugando:
 
@@ -62,100 +90,191 @@ while jugando:
 
         if evento.type == pygame.KEYDOWN:
 
-            if evento.key == pygame.K_SPACE and game_over:
+            if not game_over:
+
+                if evento.key == pygame.K_LEFT:
+                    velocidad_x = -5
+
+                if evento.key == pygame.K_RIGHT:
+                    velocidad_x = 5
+
+            if evento.key == pygame.K_r and game_over:
 
                 x_pau = ANCHO // 2
                 y_pau = ALTO - 150
+
+                velocidad_x = 0
                 velocidad_y = 0
+
+                camara_y = 0
                 puntos = 0
+
+                plataformas = []
+
+                plataforma_inicial = pygame.Rect(
+                    ANCHO // 2 - 50,
+                    ALTO - 70,
+                    ANCHO_PLATAFORMA,
+                    ALTO_PLATAFORMA
+                )
+
+                plataformas.append(plataforma_inicial)
+
+                for i in range(1, 9):
+
+                    anterior = plataformas[-1]
+
+                    x = random.randint(0, ANCHO - ANCHO_PLATAFORMA)
+                    y = anterior.y - random.randint(55, 85)
+
+                    nueva_plataforma = pygame.Rect(
+                        x,
+                        y,
+                        ANCHO_PLATAFORMA,
+                        ALTO_PLATAFORMA
+                    )
+
+                    plataformas.append(nueva_plataforma)
+
                 game_over = False
-                plataformas.clear()
 
-                plataformas.append(pygame.Rect(ANCHO // 2 - 45, ALTO - 70, ancho_plataforma, alto_plataforma))
+        if evento.type == pygame.KEYUP:
 
-                for i in range(7):
-                    x_plataforma = random.randint(0, ANCHO - ancho_plataforma)
-                    y_plataforma = ALTO - 140 - i * 65
-                    plataformas.append(pygame.Rect(x_plataforma, y_plataforma, ancho_plataforma, alto_plataforma))
+            if evento.key == pygame.K_LEFT and velocidad_x < 0:
+                velocidad_x = 0
+
+            if evento.key == pygame.K_RIGHT and velocidad_x > 0:
+                velocidad_x = 0
 
     if not game_over:
 
-        teclas = pygame.key.get_pressed()
+        x_anterior = x_pau
+        y_anterior = y_pau
 
-        if teclas[pygame.K_LEFT] or teclas[pygame.K_a]:
-            x_pau -= velocidad_x
-
-        if teclas[pygame.K_RIGHT] or teclas[pygame.K_d]:
-            x_pau += velocidad_x
-
-        if x_pau < -ancho_pau:
-            x_pau = ANCHO
-
-        if x_pau > ANCHO:
-            x_pau = -ancho_pau
-
+        x_pau += velocidad_x
         velocidad_y += gravedad
         y_pau += velocidad_y
 
-        pau_rect = pygame.Rect(
-            x_pau + 10,
-            y_pau + 10,
-            ancho_pau - 20,
-            alto_pau - 20
+        if x_pau < -ANCHO_PAU:
+            x_pau = ANCHO
+
+        if x_pau > ANCHO:
+            x_pau = -ANCHO_PAU
+
+        rect_pau = pygame.Rect(
+            x_pau,
+            y_pau,
+            ANCHO_PAU,
+            ALTO_PAU
         )
 
         if velocidad_y > 0:
 
             for plataforma in plataformas:
 
-                if pau_rect.colliderect(plataforma) and y_pau + alto_pau - 10 <= plataforma.y + velocidad_y + 5:
-                    velocidad_y = f_salto
+                rect_pau = pygame.Rect(
+                    x_pau,
+                    y_pau,
+                    ANCHO_PAU,
+                    ALTO_PAU
+                )
+
+                if (
+                    y_anterior + ALTO_PAU <= plataforma.top
+                    and rect_pau.bottom >= plataforma.top
+                    and rect_pau.right > plataforma.left
+                    and rect_pau.left < plataforma.right
+                ):
+
+                    y_pau = plataforma.top - ALTO_PAU
+                    velocidad_y = salto
+                    puntos += 1
                     break
 
-        if y_pau < ALTO // 2 and velocidad_y < 0:
+        if y_pau < ALTO // 2:
 
-            desplazamiento = ALTO // 2 - y_pau
+            diferencia = ALTO // 2 - y_pau
             y_pau = ALTO // 2
+            camara_y += diferencia
 
             for plataforma in plataformas:
-                plataforma.y += desplazamiento
+                plataforma.y += diferencia
 
-            puntos += desplazamiento
+        while plataformas[-1].y > -100:
+
+            anterior = plataformas[-1]
+
+            x = random.randint(0, ANCHO - ANCHO_PLATAFORMA)
+            y = anterior.y - random.randint(55, 85)
+
+            nueva_plataforma = pygame.Rect(
+                x,
+                y,
+                ANCHO_PLATAFORMA,
+                ALTO_PLATAFORMA
+            )
+
+            plataformas.append(nueva_plataforma)
 
         plataformas = [
-            plataforma for plataforma in plataformas
-            if plataforma.y < ALTO
+            plataforma
+            for plataforma in plataformas
+            if plataforma.y < ALTO + 50
         ]
-
-        while len(plataformas) < 8:
-
-            y_nueva = min([plataforma.y for plataforma in plataformas], default=0) - random.randint(55, 85)
-            x_nueva = random.randint(0, ANCHO - ancho_plataforma)
-
-            plataformas.append(
-                pygame.Rect(x_nueva, y_nueva, ancho_plataforma, alto_plataforma)
-            )
 
         if y_pau > ALTO:
             game_over = True
 
+        if puntos > record:
+            record = puntos
+
     ventana.blit(fondo, (0, 0))
 
     for plataforma in plataformas:
-        pygame.draw.rect(ventana, (80, 200, 80), plataforma)
 
-    ventana.blit(pau, (x_pau, y_pau))
+        ventana.blit(
+            plataforma_imagen,
+            (plataforma.x, plataforma.y)
+        )
 
-    texto_puntos = fuente.render("Puntos: " + str(puntos // 10), True, (255, 255, 255))
+    ventana.blit(
+        pau,
+        (x_pau, y_pau)
+    )
+
+    texto_puntos = fuente.render(
+        "Puntos: " + str(puntos),
+        True,
+        (255, 255, 255)
+    )
+
     ventana.blit(texto_puntos, (20, 20))
+
+    texto_record = fuente.render(
+        "Record: " + str(record),
+        True,
+        (255, 255, 255)
+    )
+
+    ventana.blit(texto_record, (20, 55))
 
     if game_over:
 
-        texto_game_over = fuente.render("GAME OVER", True, (255, 255, 255))
-        texto_reiniciar = pygame.font.Font(None, 28).render("Presiona ESPACIO para volver a jugar", True, (255, 255, 255))
+        texto = fuente_grande.render(
+            "GAME OVER",
+            True,
+            (255, 255, 255)
+        )
 
-        ventana.blit(texto_game_over, (ANCHO // 2 - 100, ALTO // 2 - 30))
-        ventana.blit(texto_reiniciar, (ANCHO // 2 - 180, ALTO // 2 + 20))
+        ventana.blit(texto, (270, 190))
+
+        texto2 = fuente.render(
+            "Presiona R para volver a jugar",
+            True,
+            (255, 255, 255)
+        )
+
+        ventana.blit(texto2, (230, 260))
 
     pygame.display.update()
 
