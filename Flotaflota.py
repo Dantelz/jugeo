@@ -25,46 +25,61 @@ fondo = pygame.image.load(encontrar_archivo("flotaflota.png"))
 fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
 
 pau = pygame.image.load(encontrar_archivo("pauflotaflota.png"))
-pau = pygame.transform.scale(pau, (100, 100))
+pau = pygame.transform.scale(pau, (80, 80))
 
 flota_flota_imagen = pygame.image.load(encontrar_archivo("flotaflotarewow.png"))
-flota_flota_imagen = pygame.transform.scale(flota_flota_imagen, (100, 100))
+flota_flota_imagen = pygame.transform.scale(flota_flota_imagen, (150, 45))
 
-x_pau = 100
-y_pau = 350
+ANCHO_PAU = 80
+ALTO_PAU = 80
+ANCHO_FLOTA = 150
+ALTO_FLOTA = 45
+ALTURA_FLOTA = 410
+
+gravedad = 0.6
+f_salto = -6
+
+x_pau = 135
+y_pau = ALTURA_FLOTA - ALTO_PAU
 
 velocidad_y = 0
-gravedad = 0.6
-f_salto = -12
-
 saltando = False
 
 flota_flota_list = []
 
-flota_inicial = pygame.Rect(100, 430, 130, 40)
+flota_inicial = pygame.Rect(
+    100,
+    ALTURA_FLOTA,
+    ANCHO_FLOTA,
+    ALTO_FLOTA
+)
+
 flota_flota_list.append(flota_inicial)
 
 for i in range(1, 8):
 
     anterior = flota_flota_list[-1]
+    distancia = random.randint(100, 190)
 
-    distancia = random.randint(80, 190)
-
-    x = anterior.right + distancia
-    y = 430
-
-    nueva_flota = pygame.Rect(x, y, 130, 40)
+    nueva_flota = pygame.Rect(
+        anterior.right + distancia,
+        ALTURA_FLOTA,
+        ANCHO_FLOTA,
+        ALTO_FLOTA
+    )
 
     flota_flota_list.append(nueva_flota)
 
-flota_actual = 0
+indice_actual = 0
+indice_destino = 0
 
 destino_x = x_pau
-destino_y = y_pau
-
 camara_x = 0
-
 puntos = 0
+
+fuente = pygame.font.Font(None, 40)
+fuente_game_over = pygame.font.Font(None, 60)
+fuente_reinicio = pygame.font.Font(None, 35)
 
 while jugando:
 
@@ -77,69 +92,67 @@ while jugando:
 
         if evento.type == pygame.KEYDOWN:
 
-            if not game_over:
+            if not game_over and not saltando:
 
-                if evento.key == pygame.K_LEFT and not saltando:
+                if evento.key == pygame.K_LEFT:
 
-                    if flota_actual + 1 < len(flota_flota_list):
+                    nuevo_indice = indice_actual + 1
 
-                        flota_actual += 1
+                    if nuevo_indice < len(flota_flota_list):
 
-                        destino_x = flota_flota_list[flota_actual].centerx - 40
-                        destino_y = flota_flota_list[flota_actual].top - 80
-
+                        indice_destino = nuevo_indice
+                        destino_x = flota_flota_list[indice_destino].centerx - ANCHO_PAU // 2
                         velocidad_y = f_salto
-
                         saltando = True
-
                         puntos += 1
 
-                if evento.key == pygame.K_RIGHT and not saltando:
+                elif evento.key == pygame.K_RIGHT:
 
-                    if flota_actual + 2 < len(flota_flota_list):
+                    nuevo_indice = indice_actual + 2
 
-                        flota_actual += 2
+                    if nuevo_indice < len(flota_flota_list):
 
-                        destino_x = flota_flota_list[flota_actual].centerx - 40
-                        destino_y = flota_flota_list[flota_actual].top - 80
-
+                        indice_destino = nuevo_indice
+                        destino_x = flota_flota_list[indice_destino].centerx - ANCHO_PAU // 2
                         velocidad_y = f_salto - 1
-
                         saltando = True
-
                         puntos += 2
 
             if evento.key == pygame.K_r and game_over:
 
-                x_pau = 100
-                y_pau = 350
+                x_pau = 135
+                y_pau = ALTURA_FLOTA - ALTO_PAU
 
                 velocidad_y = 0
                 saltando = False
 
                 puntos = 0
-                flota_actual = 0
+                indice_actual = 0
+                indice_destino = 0
                 camara_x = 0
+                destino_x = x_pau
 
                 flota_flota_list = []
 
-                flota_inicial = pygame.Rect(100, 430, 130, 40)
+                flota_inicial = pygame.Rect(
+                    100,
+                    ALTURA_FLOTA,
+                    ANCHO_FLOTA,
+                    ALTO_FLOTA
+                )
+
                 flota_flota_list.append(flota_inicial)
 
                 for i in range(1, 8):
 
                     anterior = flota_flota_list[-1]
-
-                    distancia = random.randint(80, 190)
-
-                    x = anterior.right + distancia
-                    y = 430
+                    distancia = random.randint(100, 190)
 
                     nueva_flota = pygame.Rect(
-                        x,
-                        y,
-                        130,
-                        40
+                        anterior.right + distancia,
+                        ALTURA_FLOTA,
+                        ANCHO_FLOTA,
+                        ALTO_FLOTA
                     )
 
                     flota_flota_list.append(nueva_flota)
@@ -150,11 +163,12 @@ while jugando:
 
         if saltando:
 
+            y_anterior = y_pau
+
             velocidad_y += gravedad
             y_pau += velocidad_y
 
             diferencia_x = destino_x - x_pau
-
             x_pau += diferencia_x * 0.08
 
             if velocidad_y > 0:
@@ -162,50 +176,44 @@ while jugando:
                 rect_pau = pygame.Rect(
                     x_pau,
                     y_pau,
-                    80,
-                    80
+                    ANCHO_PAU,
+                    ALTO_PAU
                 )
 
-                flotaflota = flota_flota_list[flota_actual]
+                flotaflota = flota_flota_list[indice_destino]
 
-                if rect_pau.colliderect(flotaflota):
+                if (
+                    y_anterior + ALTO_PAU <= flotaflota.top
+                    and rect_pau.bottom >= flotaflota.top
+                    and rect_pau.right > flotaflota.left
+                    and rect_pau.left < flotaflota.right
+                ):
 
-                    if rect_pau.bottom <= flotaflota.bottom + 20:
+                    y_pau = flotaflota.top - ALTO_PAU
+                    x_pau = flotaflota.centerx - ANCHO_PAU // 2
 
-                        y_pau = flotaflota.top - 80
-
-                        velocidad_y = 0
-                        saltando = False
+                    velocidad_y = 0
+                    saltando = False
+                    indice_actual = indice_destino
 
         if x_pau > camara_x + 400:
-
             camara_x = x_pau - 400
 
         while flota_flota_list[-1].x < camara_x + ANCHO + 300:
 
             anterior = flota_flota_list[-1]
-
-            distancia = random.randint(80, 190)
-
-            x = anterior.right + distancia
-            y = 430
+            distancia = random.randint(100, 190)
 
             nueva_flota = pygame.Rect(
-                x,
-                y,
-                130,
-                40
+                anterior.right + distancia,
+                ALTURA_FLOTA,
+                ANCHO_FLOTA,
+                ALTO_FLOTA
             )
 
             flota_flota_list.append(nueva_flota)
 
-        while len(flota_flota_list) > 0 and flota_flota_list[0].right < camara_x - 200:
-
-            flota_flota_list.pop(0)
-            flota_actual -= 1
-
         if y_pau > ALTO + 100:
-
             game_over = True
 
     ventana.blit(fondo, (0, 0))
@@ -214,17 +222,16 @@ while jugando:
 
         x_pantalla = flotaflota.x - camara_x
 
-        ventana.blit(
-            flota_flota_imagen,
-            (x_pantalla, flotaflota.y)
-        )
+        if -ANCHO_FLOTA <= x_pantalla <= ANCHO:
+            ventana.blit(
+                flota_flota_imagen,
+                (x_pantalla, flotaflota.y)
+            )
 
     ventana.blit(
         pau,
         (x_pau - camara_x, y_pau)
     )
-
-    fuente = pygame.font.Font(None, 40)
 
     texto_puntos = fuente.render(
         "Puntos: " + str(puntos),
@@ -232,38 +239,25 @@ while jugando:
         (255, 255, 255)
     )
 
-    ventana.blit(
-        texto_puntos,
-        (20, 20)
-    )
+    ventana.blit(texto_puntos, (20, 20))
 
     if game_over:
 
-        fuente = pygame.font.Font(None, 60)
-
-        texto = fuente.render(
+        texto = fuente_game_over.render(
             "GAME OVER",
             True,
             (255, 255, 255)
         )
 
-        ventana.blit(
-            texto,
-            (270, 190)
-        )
+        ventana.blit(texto, (270, 190))
 
-        fuente2 = pygame.font.Font(None, 35)
-
-        texto2 = fuente2.render(
+        texto2 = fuente_reinicio.render(
             "Presiona R para volver a jugar",
             True,
             (255, 255, 255)
         )
 
-        ventana.blit(
-            texto2,
-            (230, 260)
-        )
+        ventana.blit(texto2, (230, 260))
 
     pygame.display.update()
 
