@@ -17,7 +17,7 @@ ANCHO = 800
 ALTO = 500
 
 ventana = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Salto nubes")
+pygame.display.set_caption("SaltoPAUUU")
 
 reloj = pygame.time.Clock()
 
@@ -25,7 +25,7 @@ fondo = pygame.image.load(encontrar_archivo("salto.png"))
 fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
 
 pau = pygame.image.load(encontrar_archivo("paulanube.png"))
-pau = pygame.transform.scale(pau, (80,80))
+pau = pygame.transform.scale(pau, (80, 80))
 
 plataforma_imagen = pygame.image.load(encontrar_archivo("plataforma.png"))
 plataforma_imagen = pygame.transform.scale(plataforma_imagen, (100, 100))
@@ -43,8 +43,6 @@ velocidad_y = 0
 gravedad = 0.4
 salto = -11
 
-velocidad_plataformas = 0
-
 plataformas = []
 
 plataforma_inicial = pygame.Rect(
@@ -61,7 +59,7 @@ for i in range(1, 9):
     anterior = plataformas[-1]
 
     x = random.randint(0, ANCHO - ANCHO_PLATAFORMA)
-    y = anterior.y - random.randint(55, 85)
+    y = anterior.y - random.randint(35, 55)
 
     nueva_plataforma = pygame.Rect(
         x,
@@ -125,7 +123,7 @@ while jugando:
                     anterior = plataformas[-1]
 
                     x = random.randint(0, ANCHO - ANCHO_PLATAFORMA)
-                    y = anterior.y - random.randint(55, 85)
+                    y = anterior.y - random.randint(35, 55)
 
                     nueva_plataforma = pygame.Rect(
                         x,
@@ -148,7 +146,6 @@ while jugando:
 
     if not game_over:
 
-        x_anterior = x_pau
         y_anterior = y_pau
 
         x_pau += velocidad_x
@@ -161,23 +158,16 @@ while jugando:
         if x_pau > ANCHO:
             x_pau = -ANCHO_PAU
 
-        rect_pau = pygame.Rect(
-            x_pau,
-            y_pau,
-            ANCHO_PAU,
-            ALTO_PAU
-        )
-
         if velocidad_y > 0:
 
-            for plataforma in plataformas:
+            rect_pau = pygame.Rect(
+                x_pau,
+                y_pau,
+                ANCHO_PAU,
+                ALTO_PAU
+            )
 
-                rect_pau = pygame.Rect(
-                    x_pau,
-                    y_pau,
-                    ANCHO_PAU,
-                    ALTO_PAU
-                )
+            for plataforma in plataformas:
 
                 if (
                     y_anterior + ALTO_PAU <= plataforma.top
@@ -195,7 +185,6 @@ while jugando:
 
             diferencia = ALTO // 2 - y_pau
             y_pau = ALTO // 2
-            camara_y += diferencia
 
             for plataforma in plataformas:
                 plataforma.y += diferencia
@@ -205,7 +194,7 @@ while jugando:
             anterior = plataformas[-1]
 
             x = random.randint(0, ANCHO - ANCHO_PLATAFORMA)
-            y = anterior.y - random.randint(55, 85)
+            y = anterior.y - random.randint(35, 55)
 
             nueva_plataforma = pygame.Rect(
                 x,
