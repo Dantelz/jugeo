@@ -1,5 +1,5 @@
 import pygame
-import ultima.principal as principal
+import principal
 
 pygame.init()
 

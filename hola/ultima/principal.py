@@ -1,5 +1,19 @@
 import pygame
-import minijuegos.Flappy_Pau as Flappy_Pau
+
+import os
+import sys
+
+# 1. Obtiene la ruta de la carpeta actual (carpeta_a)
+ruta_actual = os.path.dirname(os.path.abspath(__file__))
+
+# 2. Sube un nivel a la raíz del proyecto y apunta a carpeta_b
+ruta_minijuegos = os.path.join(ruta_actual, "..", "minijuegos")
+
+# 3. Agrega la ruta de carpeta_b a sys.path
+sys.path.append(os.path.normpath(ruta_minijuegos))
+
+# 4. Ahora puedes importar el archivo script_b como un módulo normal
+import Flappy_Pau
 
 pygame.init()
 
