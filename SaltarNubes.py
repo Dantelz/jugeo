@@ -18,14 +18,10 @@ ventana = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Salta nube")
 reloj = pygame.time.Clock()
 
-fondo_etapa1=pygame.image.load(encontrar_archivo("resubdelsuelo.png"))
-fondo_etapa2= pygame.image.load(encontrar_archivo(""))
-fondo_etapa3 = pygame.image.load(encontrar_archivo("salto.png"))
-fondo_etapa4= pygame.image.load(encontrar_archivo("spacebar.png"))
-fondo_etapa5= pygame.image.load(encontrar_archivo("paraiso.png"))
+fondo = pygame.image.load(encontrar_archivo("salto.png"))
 pau = pygame.image.load(encontrar_archivo("paulanube.png"))
 
-
+fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
 pau = pygame.transform.scale(pau, (80, 80))
 
 ancho_pau = 60
@@ -38,7 +34,6 @@ velocidad_x = 6
 velocidad_y = 0
 gravedad = 0.4
 f_salto = -11
-
 
 ancho_plataforma = 90
 alto_plataforma = 15
