@@ -8,6 +8,29 @@ def encontrar_archivo(nombre):
     archivo = os.path.join(carpeta_raiz, "assets", "minijuegos", "salto_nubes", nombre)
     return archivo
 
+def crear_plataforma(anterior):
+    y = anterior.y - random.randint(125, 155)
+
+    desplazamiento = random.randint(150, 230)
+
+    if anterior.x < ANCHO // 2:
+        x = anterior.x + desplazamiento
+    else:
+        x = anterior.x - desplazamiento
+
+    if x < 20:
+        x = 20
+
+    if x > ANCHO - ANCHO_PLATAFORMA - 20:
+        x = ANCHO - ANCHO_PLATAFORMA - 20
+
+    return pygame.Rect(
+        x,
+        y,
+        ANCHO_PLATAFORMA,
+        ALTO_PLATAFORMA
+    )
+
 pygame.init()
 
 jugando = True
@@ -25,7 +48,7 @@ fondo = pygame.image.load(encontrar_archivo("salto.png"))
 fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
 
 pau = pygame.image.load(encontrar_archivo("paulanube.png"))
-pau = pygame.transform.scale(pau, (80, 80))
+pau = pygame.transform.scale(pau, (55, 55))
 
 plataforma_imagen = pygame.image.load(encontrar_archivo("plataforma.png"))
 plataforma_imagen = pygame.transform.scale(plataforma_imagen, (100, 100))
@@ -33,7 +56,7 @@ plataforma_imagen = pygame.transform.scale(plataforma_imagen, (100, 100))
 ANCHO_PAU = 55
 ALTO_PAU = 55
 ANCHO_PLATAFORMA = 100
-ALTO_PLATAFORMA = 25
+ALTO_PLATAFORMA = 100
 
 x_pau = ANCHO // 2
 y_pau = ALTO - 150
@@ -41,7 +64,7 @@ y_pau = ALTO - 150
 velocidad_x = 0
 velocidad_y = 0
 gravedad = 0.4
-salto = -11
+salto = -14
 
 plataformas = []
 
@@ -54,23 +77,10 @@ plataforma_inicial = pygame.Rect(
 
 plataformas.append(plataforma_inicial)
 
-for i in range(1, 9):
-
-    anterior = plataformas[-1]
-
-    x = random.randint(0, ANCHO - ANCHO_PLATAFORMA)
-    y = anterior.y - random.randint(35, 55)
-
-    nueva_plataforma = pygame.Rect(
-        x,
-        y,
-        ANCHO_PLATAFORMA,
-        ALTO_PLATAFORMA
-    )
-
+for i in range(8):
+    nueva_plataforma = crear_plataforma(plataformas[-1])
     plataformas.append(nueva_plataforma)
 
-camara_y = 0
 puntos = 0
 record = 0
 
@@ -104,7 +114,6 @@ while jugando:
                 velocidad_x = 0
                 velocidad_y = 0
 
-                camara_y = 0
                 puntos = 0
 
                 plataformas = []
@@ -118,20 +127,8 @@ while jugando:
 
                 plataformas.append(plataforma_inicial)
 
-                for i in range(1, 9):
-
-                    anterior = plataformas[-1]
-
-                    x = random.randint(0, ANCHO - ANCHO_PLATAFORMA)
-                    y = anterior.y - random.randint(35, 55)
-
-                    nueva_plataforma = pygame.Rect(
-                        x,
-                        y,
-                        ANCHO_PLATAFORMA,
-                        ALTO_PLATAFORMA
-                    )
-
+                for i in range(8):
+                    nueva_plataforma = crear_plataforma(plataformas[-1])
                     plataformas.append(nueva_plataforma)
 
                 game_over = False
@@ -161,19 +158,26 @@ while jugando:
         if velocidad_y > 0:
 
             rect_pau = pygame.Rect(
-                x_pau,
-                y_pau,
-                ANCHO_PAU,
-                ALTO_PAU
+                x_pau + 5,
+                y_pau + 5,
+                ANCHO_PAU - 10,
+                ALTO_PAU - 10
             )
 
             for plataforma in plataformas:
 
+                rect_plataforma = pygame.Rect(
+                    plataforma.x,
+                    plataforma.y,
+                    ANCHO_PLATAFORMA,
+                    ALTO_PLATAFORMA
+                )
+
                 if (
-                    y_anterior + ALTO_PAU <= plataforma.top
-                    and rect_pau.bottom >= plataforma.top
-                    and rect_pau.right > plataforma.left
-                    and rect_pau.left < plataforma.right
+                    y_anterior + ALTO_PAU - 5 <= plataforma.top
+                    and rect_pau.bottom >= rect_plataforma.top
+                    and rect_pau.right > rect_plataforma.left
+                    and rect_pau.left < rect_plataforma.right
                 ):
 
                     y_pau = plataforma.top - ALTO_PAU
@@ -189,27 +193,15 @@ while jugando:
             for plataforma in plataformas:
                 plataforma.y += diferencia
 
-        while plataformas[-1].y > -100:
-
-            anterior = plataformas[-1]
-
-            x = random.randint(0, ANCHO - ANCHO_PLATAFORMA)
-            y = anterior.y - random.randint(35, 55)
-
-            nueva_plataforma = pygame.Rect(
-                x,
-                y,
-                ANCHO_PLATAFORMA,
-                ALTO_PLATAFORMA
-            )
-
-            plataformas.append(nueva_plataforma)
-
         plataformas = [
             plataforma
             for plataforma in plataformas
             if plataforma.y < ALTO + 50
         ]
+
+        while plataformas and plataformas[-1].y > -100:
+            nueva_plataforma = crear_plataforma(plataformas[-1])
+            plataformas.append(nueva_plataforma)
 
         if y_pau > ALTO:
             game_over = True
@@ -220,16 +212,12 @@ while jugando:
     ventana.blit(fondo, (0, 0))
 
     for plataforma in plataformas:
-
         ventana.blit(
             plataforma_imagen,
             (plataforma.x, plataforma.y)
         )
 
-    ventana.blit(
-        pau,
-        (x_pau, y_pau)
-    )
+    ventana.blit(pau, (x_pau, y_pau))
 
     texto_puntos = fuente.render(
         "Puntos: " + str(puntos),
