@@ -27,11 +27,10 @@ cuadro3 = pygame.Rect(x, 375, 200, 50)
 
 cruz = pygame.Rect(740, 10, 40, 40)
 
-# Fondo del menú (busca PAU.png en FONDOS, etc.)
 fondo = principal.cargar_imagen("PAU.png", tamaño=(ancho, alto))
 if fondo is None:
     fondo = pygame.Surface((ancho, alto))
-    fondo.fill((100, 150, 200))  # corregido: fill recibe una tupla
+    fondo.fill((100, 150, 200)) 
 
 
 while ejecutando:

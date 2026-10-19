@@ -42,10 +42,6 @@ def ejecutar_flappy():
         "flappypau.png"
     )
 
-    # =========================================================
-    # CARGAR IMÁGENES
-    # =========================================================
-
     fondo = pygame.image.load(ruta_fondo).convert()
     pau = pygame.image.load(ruta_pau).convert_alpha()
 

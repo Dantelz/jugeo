@@ -3,10 +3,8 @@ import os
 import sys
 import json
 
-# Carpeta donde está este archivo
 ruta_actual = os.path.dirname(os.path.abspath(__file__))
 
-# Agrega la carpeta de minijuegos al path
 ruta_minijuegos = os.path.join(ruta_actual, "..", "minijuegos")
 sys.path.append(os.path.normpath(ruta_minijuegos))
 
@@ -20,10 +18,6 @@ alto = 600
 TIEMPO_DISMINUCION = 1000
 DURACION_NOCHE = 3000
 
-# ---------------------------------------------------------------
-# BÚSQUEDA DE IMÁGENES
-# Busca cada archivo en varias carpetas posibles (FONDOS, objetos...)
-# ---------------------------------------------------------------
 CARPETAS = [
     "", "FONDOS", "objetos", "personajes", "imagenes",
     "..", os.path.join("..", "FONDOS"), os.path.join("..", "objetos"),
@@ -67,12 +61,8 @@ def fondo_o_color(nombre, color):
     return img
 
 
-# ---------------------------------------------------------------
-# DATOS GUARDADOS (monedas e inventario)
-# ---------------------------------------------------------------
 ARCHIVO_GUARDADO = os.path.join(ruta_actual, "guardado.json")
 
-# Cada comida: (nombre, imagen, precio 3-10, puntos de comida que da)
 COMIDAS = [
     ("Manzana", "manzana.png", 3, 10),
     ("Pizza", "pizza.png", 6, 20),
@@ -97,7 +87,6 @@ def cargar_datos():
             return
         except (OSError, ValueError):
             pass
-    # Primera vez que se abre el juego: 100 monedas
     monedas = 100
     guardar()
 
@@ -112,9 +101,6 @@ def guardar():
 
 cargar_datos()
 
-# ---------------------------------------------------------------
-# ESTADO DEL JUEGO
-# ---------------------------------------------------------------
 baño = 100
 comer = 100
 dormir = 100
@@ -131,7 +117,7 @@ tiempo_mensaje = 0
 habitacion_actual = 0
 nombres_habitaciones = ["BAÑO", "SALA DE ESTAR", "HABITACIÓN", "COCINA"]
 
-subpantalla = "normal"  # normal, minijuegos, tienda, comidas
+subpantalla = "normal"  
 
 
 def avisar(texto):
@@ -140,9 +126,6 @@ def avisar(texto):
     tiempo_mensaje = pygame.time.get_ticks()
 
 
-# ---------------------------------------------------------------
-# IMÁGENES
-# ---------------------------------------------------------------
 fondo_bano = fondo_o_color("bano.png", (173, 216, 230))
 fondo_sala = fondo_o_color("principal.png", (240, 230, 140))
 fondo_habitacion = fondo_o_color("habitacion.png", (230, 230, 250))
@@ -182,13 +165,9 @@ fuente = pygame.font.Font(None, 28)
 fuente_grande = pygame.font.Font(None, 36)
 fuente_numero = pygame.font.Font(None, 22)
 
-# ---------------------------------------------------------------
-# RECTÁNGULOS
-# ---------------------------------------------------------------
 flecha_izquierda = pygame.Rect(10, 270, 50, 60)
 flecha_derecha = pygame.Rect(740, 270, 50, 60)
 
-# Objetos del baño (cada uno sube la higiene)
 objeto_jabon = pygame.Rect(190, 450, 110, 110)
 objeto_ducha = pygame.Rect(345, 450, 110, 110)
 objeto_toalla = pygame.Rect(500, 450, 110, 110)
@@ -198,7 +177,7 @@ objetos_bano = [
     (objeto_toalla, img_toalla, "Toalla", 10),
 ]
 
-# Almohada (reemplaza el botón de dormir)
+
 objeto_almohada = pygame.Rect(345, 450, 110, 110)
 
 boton_minijuegos = pygame.Rect(230, 480, 160, 50)
@@ -211,7 +190,7 @@ botones_minijuegos = [
 
 boton_volver = pygame.Rect(20, 20, 100, 40)
 
-# Tarjetas de comidas (tienda y cocina)
+
 tarjetas_comidas = [
     pygame.Rect(70 + i * 170, 200, 150, 190) for i in range(len(COMIDAS))
 ]
@@ -223,9 +202,6 @@ barra_dormir = pygame.Rect(410, pos_y_barras, 170, 20)
 barra_jugar = pygame.Rect(600, pos_y_barras, 170, 20)
 
 
-# ---------------------------------------------------------------
-# DIBUJO
-# ---------------------------------------------------------------
 def dibujar_barra(ventana, rectangulo, nombre, valor):
     pygame.draw.rect(ventana, (220, 220, 220), rectangulo)
     ancho_barra = int(rectangulo.width * valor / 100)
@@ -294,16 +270,6 @@ def dibujar_catalogo(ventana, titulo, modo):
     dibujar_boton(ventana, boton_volver, "Volver")
 
 
-# ---------------------------------------------------------------
-# ESTADO DE POU
-# Regla: se usa la barra MÁS BAJA para decidir el aspecto.
-#   0        -> muerto
-#   1 - 30   -> triste
-#   31 - 59  -> popo
-#   60 - 79  -> maso
-#   80 - 100 -> feliz
-# Mientras duerme se muestra dormido; al terminar se recalcula solo.
-# ---------------------------------------------------------------
 def obtener_personaje():
     if modo_noche:
         return pou_dormido
@@ -321,16 +287,12 @@ def obtener_personaje():
     return pou_feliz
 
 
-# ---------------------------------------------------------------
-# CLICKS
-# ---------------------------------------------------------------
 def manejar_click(posicion):
     global baño, comer, dormir, jugar
     global modo_noche, inicio_noche
     global habitacion_actual, subpantalla
     global monedas
 
-    # MENÚ DE MINIJUEGOS
     if subpantalla == "minijuegos":
         if boton_volver.collidepoint(posicion):
             subpantalla = "normal"
@@ -342,7 +304,6 @@ def manejar_click(posicion):
                     resultado = Flappy_Pau.ejecutar_flappy()
                     subpantalla = "minijuegos"
 
-                    # Si el minijuego devuelve un número, son las monedas ganadas
                     if isinstance(resultado, int) and resultado > 0:
                         monedas += resultado
                         guardar()
@@ -352,7 +313,6 @@ def manejar_click(posicion):
                     avisar(f"Minijuego {i + 1} en desarrollo")
         return
 
-    # TIENDA (comprar comidas)
     if subpantalla == "tienda":
         if boton_volver.collidepoint(posicion):
             subpantalla = "normal"
@@ -369,7 +329,6 @@ def manejar_click(posicion):
                     avisar("No te alcanzan las monedas")
         return
 
-    # COCINA (comer lo comprado)
     if subpantalla == "comidas":
         if boton_volver.collidepoint(posicion):
             subpantalla = "normal"
@@ -382,10 +341,9 @@ def manejar_click(posicion):
                     comer = min(100, comer + valor)
                     guardar()
                 else:
-                    avisar(f"No tienes {nombre}")
+                    avisar(f"No tenes {nombre}")
         return
 
-    # CAMBIO DE HABITACIÓN
     if flecha_izquierda.collidepoint(posicion):
         habitacion_actual = (habitacion_actual - 1) % 4
         return
@@ -393,34 +351,27 @@ def manejar_click(posicion):
         habitacion_actual = (habitacion_actual + 1) % 4
         return
 
-    # BAÑO
     if habitacion_actual == 0:
         for rect, _, _, subida in objetos_bano:
             if rect.collidepoint(posicion):
                 baño = min(100, baño + subida)
 
-    # SALA
     elif habitacion_actual == 1:
         if boton_minijuegos.collidepoint(posicion):
             subpantalla = "minijuegos"
         elif boton_tienda.collidepoint(posicion):
             subpantalla = "tienda"
 
-    # HABITACIÓN
     elif habitacion_actual == 2:
         if objeto_almohada.collidepoint(posicion) and not modo_noche:
             modo_noche = True
             inicio_noche = pygame.time.get_ticks()
 
-    # COCINA
     elif habitacion_actual == 3:
         if boton_comidas.collidepoint(posicion):
             subpantalla = "comidas"
 
 
-# ---------------------------------------------------------------
-# ACTUALIZACIÓN
-# ---------------------------------------------------------------
 def actualizar_necesidades():
     global baño, comer, dormir, jugar
     global ultimo_descenso, ultimo_incremento_dormir, modo_noche
@@ -446,9 +397,6 @@ def actualizar_necesidades():
             modo_noche = False
 
 
-# ---------------------------------------------------------------
-# PANTALLA PRINCIPAL
-# ---------------------------------------------------------------
 def principal():
     ventana = pygame.display.get_surface()
 
