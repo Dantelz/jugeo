@@ -27,8 +27,8 @@ fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
 pau = pygame.image.load(encontrar_archivo("pauflotaflota.png"))
 pau = pygame.transform.scale(pau, (80, 80))
 
-flota_flota_imagen = pygame.image.load(encontrar_archivo("flotaflotarewow.png"))
-flota_flota_imagen = pygame.transform.scale(flota_flota_imagen, (150, 45))
+flota_flota_imagen = pygame.image.load(encontrar_archivo("uniflota.png"))
+flota_flota_imagen = pygame.transform.scale(flota_flota_imagen, (150, 150))
 
 ANCHO_PAU = 80
 ALTO_PAU = 80
