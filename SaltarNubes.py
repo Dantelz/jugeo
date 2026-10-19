@@ -9,9 +9,9 @@ def encontrar_archivo(nombre):
     return archivo
 
 def crear_plataforma(anterior):
-    y = anterior.y - random.randint(125, 155)
+    y = anterior.y - random.randint(130, 160)
 
-    desplazamiento = random.randint(150, 230)
+    desplazamiento = random.randint(200, 250)
 
     if anterior.x < ANCHO // 2:
         x = anterior.x + desplazamiento
@@ -58,13 +58,21 @@ ALTO_PAU = 55
 ANCHO_PLATAFORMA = 100
 ALTO_PLATAFORMA = 100
 
+
+MARGEN_SUPERIOR_PLAT = 35   
+MARGEN_LATERAL_PLAT = 15    
+MARGEN_PIES_PAU = 8         
+
+
+DEBUG = False
+
 x_pau = ANCHO // 2
 y_pau = ALTO - 150
 
 velocidad_x = 0
 velocidad_y = 0
 gravedad = 0.4
-salto = -14
+salto = -15
 
 plataformas = []
 
@@ -155,32 +163,32 @@ while jugando:
         if x_pau > ANCHO:
             x_pau = -ANCHO_PAU
 
+        rect_pau = pygame.Rect(
+            x_pau + 10,
+            y_pau + 10,
+            ANCHO_PAU - 20,
+            ALTO_PAU - 20
+        )
+
         if velocidad_y > 0:
 
-            rect_pau = pygame.Rect(
-                x_pau + 5,
-                y_pau + 5,
-                ANCHO_PAU - 10,
-                ALTO_PAU - 10
-            )
+            pies_anterior = y_anterior + ALTO_PAU - MARGEN_PIES_PAU
+            pies_actual = y_pau + ALTO_PAU - MARGEN_PIES_PAU
 
             for plataforma in plataformas:
 
-                rect_plataforma = pygame.Rect(
-                    plataforma.x,
-                    plataforma.y,
-                    ANCHO_PLATAFORMA,
-                    ALTO_PLATAFORMA
-                )
+                superficie = plataforma.top + MARGEN_SUPERIOR_PLAT
+                izquierda = plataforma.left + MARGEN_LATERAL_PLAT
+                derecha = plataforma.right - MARGEN_LATERAL_PLAT
 
                 if (
-                    y_anterior + ALTO_PAU - 5 <= plataforma.top
-                    and rect_pau.bottom >= rect_plataforma.top
-                    and rect_pau.right > rect_plataforma.left
-                    and rect_pau.left < rect_plataforma.right
+                    pies_anterior <= superficie
+                    and pies_actual >= superficie
+                    and rect_pau.right > izquierda
+                    and rect_pau.left < derecha
                 ):
 
-                    y_pau = plataforma.top - ALTO_PAU
+                    y_pau = superficie - ALTO_PAU + MARGEN_PIES_PAU
                     velocidad_y = salto
                     puntos += 1
                     break
@@ -218,6 +226,23 @@ while jugando:
         )
 
     ventana.blit(pau, (x_pau, y_pau))
+
+    if DEBUG:
+        for plataforma in plataformas:
+            pygame.draw.line(
+                ventana,
+                (255, 0, 0),
+                (plataforma.left + MARGEN_LATERAL_PLAT, plataforma.top + MARGEN_SUPERIOR_PLAT),
+                (plataforma.right - MARGEN_LATERAL_PLAT, plataforma.top + MARGEN_SUPERIOR_PLAT),
+                2
+            )
+        pygame.draw.line(
+            ventana,
+            (0, 255, 0),
+            (x_pau + 10, y_pau + ALTO_PAU - MARGEN_PIES_PAU),
+            (x_pau + ANCHO_PAU - 10, y_pau + ALTO_PAU - MARGEN_PIES_PAU),
+            2
+        )
 
     texto_puntos = fuente.render(
         "Puntos: " + str(puntos),
