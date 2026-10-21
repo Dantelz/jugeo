@@ -34,13 +34,29 @@ ANCHO_PAU = 80
 ALTO_PAU = 80
 ANCHO_FLOTA = 150
 ALTO_FLOTA = 45
-ALTURA_FLOTA = 410
+ALTURA_FLOTA = 370          
+
+
+MARGEN_SUPERIOR_FLOTA = 65  
+MARGEN_LATERAL_FLOTA = 10   
+MARGEN_PIES_PAU = 12        
+MARGEN_LATERAL_PAU = 12     
+OFFSET_X_APOYO = 20        
+
+DEBUG = False
+
+def superficie_flota(flota):
+    
+    return flota.top + MARGEN_SUPERIOR_FLOTA
+
+def y_pau_apoyado(flota):
+   
+    return superficie_flota(flota) - ALTO_PAU + MARGEN_PIES_PAU
 
 gravedad = 0.6
 f_salto = -6
 
-x_pau = 135
-y_pau = ALTURA_FLOTA - ALTO_PAU
+x_pau = 135 + OFFSET_X_APOYO
 
 velocidad_y = 0
 saltando = False
@@ -55,6 +71,8 @@ flota_inicial = pygame.Rect(
 )
 
 flota_flota_list.append(flota_inicial)
+
+y_pau = y_pau_apoyado(flota_inicial)
 
 for i in range(1, 8):
 
@@ -101,7 +119,7 @@ while jugando:
                     if nuevo_indice < len(flota_flota_list):
 
                         indice_destino = nuevo_indice
-                        destino_x = flota_flota_list[indice_destino].centerx - ANCHO_PAU // 2
+                        destino_x = flota_flota_list[indice_destino].centerx - ANCHO_PAU // 2 + OFFSET_X_APOYO
                         velocidad_y = f_salto
                         saltando = True
                         puntos += 1
@@ -113,15 +131,14 @@ while jugando:
                     if nuevo_indice < len(flota_flota_list):
 
                         indice_destino = nuevo_indice
-                        destino_x = flota_flota_list[indice_destino].centerx - ANCHO_PAU // 2
+                        destino_x = flota_flota_list[indice_destino].centerx - ANCHO_PAU // 2 + OFFSET_X_APOYO
                         velocidad_y = f_salto - 1
                         saltando = True
                         puntos += 2
 
             if evento.key == pygame.K_r and game_over:
 
-                x_pau = 135
-                y_pau = ALTURA_FLOTA - ALTO_PAU
+                x_pau = 135 + OFFSET_X_APOYO
 
                 velocidad_y = 0
                 saltando = False
@@ -142,6 +159,8 @@ while jugando:
                 )
 
                 flota_flota_list.append(flota_inicial)
+
+                y_pau = y_pau_apoyado(flota_inicial)
 
                 for i in range(1, 8):
 
@@ -171,26 +190,29 @@ while jugando:
             diferencia_x = destino_x - x_pau
             x_pau += diferencia_x * 0.08
 
-            if velocidad_y > 0:
+        if velocidad_y > 0:
 
-                rect_pau = pygame.Rect(
-                    x_pau,
-                    y_pau,
-                    ANCHO_PAU,
-                    ALTO_PAU
-                )
+            flotaflota = flota_flota_list[indice_destino]
 
-                flotaflota = flota_flota_list[indice_destino]
+            superficie = superficie_flota(flotaflota)
+            izquierda = flotaflota.left + MARGEN_LATERAL_FLOTA
+            derecha = flotaflota.right - MARGEN_LATERAL_FLOTA
 
-                if (
-                    y_anterior + ALTO_PAU <= flotaflota.top
-                    and rect_pau.bottom >= flotaflota.top
-                    and rect_pau.right > flotaflota.left
-                    and rect_pau.left < flotaflota.right
+            pies_anterior = y_anterior + ALTO_PAU - MARGEN_PIES_PAU
+            pies_actual = y_pau + ALTO_PAU - MARGEN_PIES_PAU
+
+            pau_izquierda = x_pau + MARGEN_LATERAL_PAU
+            pau_derecha = x_pau + ANCHO_PAU - MARGEN_LATERAL_PAU
+
+            if (
+                    pies_anterior <= superficie
+                    and pies_actual >= superficie
+                    and pau_derecha > izquierda
+                    and pau_izquierda < derecha
                 ):
 
-                    y_pau = flotaflota.top - ALTO_PAU
-                    x_pau = flotaflota.centerx - ANCHO_PAU // 2
+                    y_pau = y_pau_apoyado(flotaflota)
+                    x_pau = flotaflota.centerx - ANCHO_PAU // 2 + OFFSET_X_APOYO
 
                     velocidad_y = 0
                     saltando = False
@@ -232,6 +254,24 @@ while jugando:
         pau,
         (x_pau - camara_x, y_pau)
     )
+
+    if DEBUG:
+        for flotaflota in flota_flota_list:
+            x_pantalla = flotaflota.x - camara_x
+            pygame.draw.line(
+                ventana,
+                (255, 0, 0),
+                (x_pantalla + MARGEN_LATERAL_FLOTA, superficie_flota(flotaflota)),
+                (x_pantalla + ANCHO_FLOTA - MARGEN_LATERAL_FLOTA, superficie_flota(flotaflota)),
+                2
+            )
+        pygame.draw.line(
+            ventana,
+            (0, 255, 0),
+            (x_pau - camara_x + MARGEN_LATERAL_PAU, y_pau + ALTO_PAU - MARGEN_PIES_PAU),
+            (x_pau - camara_x + ANCHO_PAU - MARGEN_LATERAL_PAU, y_pau + ALTO_PAU - MARGEN_PIES_PAU),
+            2
+        )
 
     texto_puntos = fuente.render(
         "Puntos: " + str(puntos),
