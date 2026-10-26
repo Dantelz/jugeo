@@ -1,4 +1,3 @@
-
 import pygame
 import os
 import random
@@ -44,7 +43,7 @@ pygame.display.set_caption("SaltoPAUUU")
 
 reloj = pygame.time.Clock()
 
-fondo = pygame.image.load(encontrar_archivo("salto.png"))
+fondo = pygame.image.load(encontrar_archivo("resubdelsuelo.png"))
 fondo = pygame.transform.scale(fondo, (ANCHO, ALTO))
 
 pau = pygame.image.load(encontrar_archivo("paulanube.png"))
