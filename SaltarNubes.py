@@ -37,6 +37,11 @@ def obtener_zona(puntos):
     else:
         return 4
 
+def tiempo_juego():
+    tiempo_transcurrido = (pygame.time.get_ticks() - tiempo_inicio) // 1000
+    tiempo_restante = max(0, 60 - tiempo_transcurrido)
+    return tiempo_restante
+
 pygame.init()
 
 jugando = True
@@ -49,6 +54,9 @@ ventana = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("SaltoPAUUU")
 
 reloj = pygame.time.Clock()
+
+DURACION_JUEGO = 60
+tiempo_inicio = pygame.time.get_ticks()
 
 fondos = [
     pygame.transform.scale(
@@ -162,6 +170,14 @@ while jugando:
 
     reloj.tick(60)
 
+    if not game_over:
+        tiempo_restante = tiempo_juego()
+
+        if tiempo_restante <= 0:
+            game_over = True
+    else:
+        tiempo_restante = tiempo_juego()
+
     zona = obtener_zona(puntos)
 
     if zona != zona_anterior:
@@ -192,6 +208,9 @@ while jugando:
                 velocidad_y = 0
 
                 puntos = 0
+
+                tiempo_inicio = pygame.time.get_ticks()
+                tiempo_restante = DURACION_JUEGO
 
                 plataformas = []
 
@@ -393,6 +412,14 @@ while jugando:
     )
 
     ventana.blit(texto_record, (20, 55))
+
+    texto_tiempo = fuente.render(
+        "Tiempo: " + str(tiempo_restante),
+        True,
+        (255, 255, 255)
+    )
+
+    ventana.blit(texto_tiempo, (20, 90))
 
     nombres_zonas = [
         "Subsuelo",
