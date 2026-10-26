@@ -1,4 +1,3 @@
-
 import pygame
 import os
 import random
@@ -51,14 +50,13 @@ def y_pau_apoyado(flota):
     return superficie_flota(flota) - ALTO_PAU + MARGEN_PIES_PAU
 
 def crear_flota(anterior):
-    distancia = random.randint(45, 95)
+    distancia = random.randint(25, 50)
 
     if random.randint(1, 5) == 1:
-        distancia = random.randint(105, 125)
+        distancia = random.randint(125, 300)
 
-    cambio_altura = random.randint(-12, 12)
+    cambio_altura = random.randint(-8, 8)
     nueva_y = anterior.y + cambio_altura
-
     nueva_y = max(350, min(390, nueva_y))
 
     nueva_flota = pygame.Rect(
@@ -71,7 +69,8 @@ def crear_flota(anterior):
     return nueva_flota
 
 gravedad = 0.6
-f_salto = -11
+f_salto_normal = -9
+f_doble_salto = -15
 
 x_pau = 135 + OFFSET_X_APOYO
 velocidad_y = 0
@@ -133,7 +132,7 @@ while jugando:
                             + OFFSET_X_APOYO
                         )
 
-                        velocidad_y = f_salto
+                        velocidad_y = f_salto_normal
                         saltando = True
                         puntos += 1
 
@@ -151,7 +150,7 @@ while jugando:
                             + OFFSET_X_APOYO
                         )
 
-                        velocidad_y = f_salto - 1
+                        velocidad_y = f_doble_salto
                         saltando = True
                         puntos += 2
 
@@ -199,52 +198,47 @@ while jugando:
             diferencia_x = destino_x - x_pau
             x_pau += diferencia_x * 0.12
 
-            if velocidad_y > 0:
+            flotaflota = flota_flota_list[indice_destino]
+            superficie = superficie_flota(flotaflota)
 
-                flotaflota = flota_flota_list[indice_destino]
+            pies_anterior = (
+                y_anterior + ALTO_PAU - MARGEN_PIES_PAU
+            )
 
-                superficie = superficie_flota(flotaflota)
+            pies_actual = (
+                y_pau + ALTO_PAU - MARGEN_PIES_PAU
+            )
 
-                izquierda = flotaflota.left + MARGEN_LATERAL_FLOTA
-                derecha = flotaflota.right - MARGEN_LATERAL_FLOTA
+            izquierda = flotaflota.left + MARGEN_LATERAL_FLOTA
+            derecha = flotaflota.right - MARGEN_LATERAL_FLOTA
 
-                pies_anterior = (
-                    y_anterior + ALTO_PAU - MARGEN_PIES_PAU
+            pau_izquierda = x_pau + MARGEN_LATERAL_PAU
+            pau_derecha = x_pau + ANCHO_PAU - MARGEN_LATERAL_PAU
+
+            if (
+                velocidad_y > 0
+                and pies_anterior <= superficie
+                and pies_actual >= superficie
+                and pau_derecha > izquierda
+                and pau_izquierda < derecha
+            ):
+
+                y_pau = y_pau_apoyado(flotaflota)
+
+                x_pau = (
+                    flotaflota.centerx
+                    - ANCHO_PAU // 2
+                    + OFFSET_X_APOYO
                 )
 
-                pies_actual = (
-                    y_pau + ALTO_PAU - MARGEN_PIES_PAU
-                )
-
-                pau_izquierda = x_pau + MARGEN_LATERAL_PAU
-                pau_derecha = (
-                    x_pau + ANCHO_PAU - MARGEN_LATERAL_PAU
-                )
-
-                if (
-                    pies_anterior <= superficie
-                    and pies_actual >= superficie
-                    and pau_derecha > izquierda
-                    and pau_izquierda < derecha
-                ):
-
-                    y_pau = y_pau_apoyado(flotaflota)
-
-                    x_pau = (
-                        flotaflota.centerx
-                        - ANCHO_PAU // 2
-                        + OFFSET_X_APOYO
-                    )
-
-                    velocidad_y = 0
-                    saltando = False
-                    indice_actual = indice_destino
+                velocidad_y = 0
+                saltando = False
+                indice_actual = indice_destino
 
         if x_pau > camara_x + 400:
             camara_x = x_pau - 400
 
         while flota_flota_list[-1].x < camara_x + ANCHO + 300:
-
             anterior = flota_flota_list[-1]
             nueva_flota = crear_flota(anterior)
             flota_flota_list.append(nueva_flota)
@@ -259,7 +253,6 @@ while jugando:
         x_pantalla = flotaflota.x - camara_x
 
         if -ANCHO_FLOTA <= x_pantalla <= ANCHO:
-
             ventana.blit(
                 flota_flota_imagen,
                 (int(x_pantalla), flotaflota.y)
