@@ -100,7 +100,10 @@ while ejecutando:
 
         texto_instrucc = fuente.render("Instrucciones:", True, (255, 255, 255))
         texto_instrucc2 = fuente.render(
-            "Usa las flechas para moverte de habitación.", True, (255, 255, 255)
+            "Cuida a pau, cumpliendo con sus necesidades, y sin dejar que alguna de las barras llegue a cero.", True, (255, 255, 255)
+        )
+        texto_instrucc2 = fuente.render(
+            "Cuida a pau, cumpliendo con sus necesi y sin dejar que alguna de las barras llegue a cero.", True, (255, 255, 255)
         )
 
         ventana.blit(texto_instrucc, (250, 200))
