@@ -102,13 +102,9 @@ while ejecutando:
         texto_instrucc2 = fuente.render(
             "Cuida a pau, cumpliendo con sus necesidades, y sin dejar que alguna de las barras llegue a cero.", True, (255, 255, 255)
         )
-        texto_instrucc2 = fuente.render(
-            "Cuida a pau, cumpliendo con sus necesi y sin dejar que alguna de las barras llegue a cero.", True, (255, 255, 255)
-        )
 
         ventana.blit(texto_instrucc, (250, 200))
         ventana.blit(texto_instrucc2, (200, 250))
-
         pygame.draw.line(ventana, (255, 255, 255), (740, 10), (770, 40), 5)
         pygame.draw.line(ventana, (255, 255, 255), (770, 10), (740, 40), 5)
 

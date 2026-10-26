@@ -6,10 +6,8 @@ import math
 import random
 
 ruta_actual = os.path.dirname(os.path.abspath(__file__))
-
 ruta_minijuegos = os.path.join(ruta_actual, "..", "minijuegos")
 sys.path.append(os.path.normpath(ruta_minijuegos))
-
 
 pygame.init()
 
@@ -24,7 +22,6 @@ CARPETAS = [
     "..", os.path.join("..", "FONDOS"), os.path.join("..", "objetos"),
 ]
 
-
 def buscar_ruta(nombre):
     for carpeta in CARPETAS:
         ruta = os.path.normpath(os.path.join(ruta_actual, carpeta, nombre))
@@ -32,10 +29,7 @@ def buscar_ruta(nombre):
             return ruta
     return None
 
-
 def cargar_imagen(nombre, tamaño=None, maximo=None):
-    """Carga una imagen. Devuelve None (y avisa en consola) si no la encuentra.
-    tamaño=(w, h) estira; maximo=n la ajusta a n x n conservando proporción."""
     ruta = buscar_ruta(nombre)
     if ruta is None:
         print(f"[AVISO] No se encontró la imagen: {nombre}")
@@ -53,14 +47,12 @@ def cargar_imagen(nombre, tamaño=None, maximo=None):
         return pygame.transform.smoothscale(img, (int(w * esc), int(h * esc)))
     return img
 
-
 def fondo_o_color(nombre, color):
     img = cargar_imagen(nombre, tamaño=(ancho, alto))
     if img is None:
         img = pygame.Surface((ancho, alto))
         img.fill(color)
     return img
-
 
 ARCHIVO_GUARDADO = os.path.join(ruta_actual, "guardado.json")
 
@@ -73,7 +65,6 @@ COMIDAS = [
 
 monedas = 100
 inventario = {c[0]: 0 for c in COMIDAS}
-
 
 def cargar_datos():
     global monedas, inventario
@@ -92,7 +83,6 @@ def cargar_datos():
     monedas = 100
     guardar()
 
-
 def guardar():
     try:
         with open(ARCHIVO_GUARDADO, "w", encoding="utf-8") as f:
@@ -100,9 +90,7 @@ def guardar():
     except OSError as e:
         print(f"[AVISO] No se pudo guardar: {e}")
 
-
 cargar_datos()
-
 baño = 100
 comer = 100
 dormir = 100
@@ -112,21 +100,16 @@ ultimo_descenso = pygame.time.get_ticks()
 ultimo_incremento_dormir = pygame.time.get_ticks()
 inicio_noche = 0
 modo_noche = False
-
 mensaje_temporal = ""
 tiempo_mensaje = 0
-
 habitacion_actual = 0
 nombres_habitaciones = ["BAÑO", "SALA DE ESTAR", "HABITACIÓN", "COCINA"]
-
 subpantalla = "normal" 
-
 
 def avisar(texto):
     global mensaje_temporal, tiempo_mensaje
     mensaje_temporal = texto
     tiempo_mensaje = pygame.time.get_ticks()
-
 
 fondo_bano = fondo_o_color("bano.png", (173, 216, 230))
 fondo_sala = fondo_o_color("principal.png", (240, 230, 140))
@@ -135,13 +118,11 @@ fondo_cocina = fondo_o_color("cocina.png", (255, 218, 185))
 
 TAMAÑO_POU = 220
 
-
 def cargar_pou(nombre):
-    img = cargar_imagen(nombre, maximo=TAMAÑO_POU)
+    img = cargar_imagen(nombre, maximo = TAMAÑO_POU)
     return img if img is not None else pou_base
 
-
-pou_base = cargar_imagen("pou.png", maximo=TAMAÑO_POU)
+pou_base = cargar_imagen("pou.png", maximo = TAMAÑO_POU)
 if pou_base is None:
     pou_base = pygame.Surface((150, 150))
     pou_base.fill((139, 69, 19))
@@ -166,11 +147,8 @@ imagenes_comidas = {
 fuente = pygame.font.Font(None, 28)
 fuente_grande = pygame.font.Font(None, 36)
 fuente_numero = pygame.font.Font(None, 22)
-
 flecha_izquierda = pygame.Rect(10, 270, 50, 60)
 flecha_derecha = pygame.Rect(740, 270, 50, 60)
-
-
 objeto_jabon = pygame.Rect(190, 450, 110, 110)
 objeto_ducha = pygame.Rect(345, 450, 110, 110)
 objeto_toalla = pygame.Rect(500, 450, 110, 110)
@@ -180,28 +158,25 @@ objetos_bano = [
     (objeto_toalla, img_toalla, "Toalla"),
 ]
 
-
 fase_bano = 0
 progreso_bano = [0.0, 0.0, 0.0]   
 FACTORES_BANO = [0.15, 0.20, 0.20] 
 PISTAS_BANO = [
-    "1/3: Frota el jabón sobre Pou",
-    "2/3: Pasa la ducha para enjuagarlo",
-    "3/3: Sécalo con la toalla",
+    "1/3: Frota el jabón sobre Pau",
+    "2/3: Pasale la ducha para enjuagarla",
+    "3/3: Sécala con la toalla",
 ]
+
 arrastrando = None              
 pos_arrastre = (0, 0)
-
 zona_pou = pygame.Rect(0, 0, 200, 220)
 zona_pou.center = (400, 320)
-
 _azar = random.Random(7)
 BURBUJAS = [
     (_azar.randint(-85, 85), _azar.randint(-95, 95), _azar.randint(10, 20))
     for _ in range(45)
 ]
 GOTAS = [(_azar.randint(-90, 90), _azar.randint(-100, 100)) for _ in range(30)]
-
 
 def _tenue(img):
     if img is None:
@@ -210,11 +185,9 @@ def _tenue(img):
     t.set_alpha(90)
     return t
 
-
 imgs_bano_tenues = [_tenue(o[1]) for o in objetos_bano]
 
 objeto_almohada = pygame.Rect(345, 450, 110, 110)
-
 boton_minijuegos = pygame.Rect(230, 480, 160, 50)
 boton_tienda = pygame.Rect(410, 480, 160, 50)
 boton_comidas = pygame.Rect(325, 480, 150, 50)
@@ -234,7 +207,6 @@ barra_baño = pygame.Rect(30, pos_y_barras, 170, 20)
 barra_comer = pygame.Rect(220, pos_y_barras, 170, 20)
 barra_dormir = pygame.Rect(410, pos_y_barras, 170, 20)
 barra_jugar = pygame.Rect(600, pos_y_barras, 170, 20)
-
 
 def dibujar_barra(ventana, rectangulo, nombre, valor):
     pygame.draw.rect(ventana, (220, 220, 220), rectangulo)
@@ -256,13 +228,11 @@ def dibujar_barra(ventana, rectangulo, nombre, valor):
         (rectangulo.centerx - texto_numero.get_width() // 2, rectangulo.bottom + 2),
     )
 
-
 def dibujar_boton(ventana, rectangulo, texto):
     pygame.draw.rect(ventana, (255, 255, 255), rectangulo)
     pygame.draw.rect(ventana, (0, 0, 0), rectangulo, 2)
     texto_render = fuente.render(texto, True, (0, 0, 0))
     ventana.blit(texto_render, texto_render.get_rect(center=rectangulo.center))
-
 
 def dibujar_objeto(ventana, rectangulo, imagen, texto):
     """Dibuja la imagen del objeto; si no existe, un botón con texto."""
@@ -271,11 +241,9 @@ def dibujar_objeto(ventana, rectangulo, imagen, texto):
     else:
         ventana.blit(imagen, imagen.get_rect(center=rectangulo.center))
 
-
 def dibujar_monedas(ventana):
     txt = fuente_grande.render(f"Monedas: {monedas}", True, (0, 0, 0))
     ventana.blit(txt, (725 - txt.get_width(), 10))
-
 
 def dibujar_bano(ventana):
     cx, cy = zona_pou.center
@@ -327,7 +295,6 @@ def dibujar_bano(ventana):
     pygame.draw.rect(ventana, (0, 0, 0), fondo_txt, 2)
     ventana.blit(txt, txt.get_rect(center=fondo_txt.center))
 
-
 def dibujar_catalogo(ventana, titulo, modo):
     ventana.fill((200, 220, 240))
     t = fuente_grande.render(titulo, True, (0, 0, 0))
@@ -353,7 +320,6 @@ def dibujar_catalogo(ventana, titulo, modo):
         ventana.blit(s, (rect.centerx - s.get_width() // 2, rect.y + 150))
 
     dibujar_boton(ventana, boton_volver, "Volver")
-
 
 def obtener_personaje():
     if modo_noche:
@@ -459,7 +425,6 @@ def manejar_click(posicion):
 
 
 def manejar_movimiento(pos):
-    """Se llama con cada movimiento del mouse (mientras se mantiene el botón)."""
     global pos_arrastre, arrastrando, fase_bano, baño
 
     if arrastrando is None:
@@ -479,18 +444,15 @@ def manejar_movimiento(pos):
                 baño = 100
                 fase_bano = 0
                 progreso_bano[:] = [0.0, 0.0, 0.0]
-                avisar("¡Pou está limpio!")
+                avisar("¡Pau está limpia!")
             pos_arrastre = pos
             return
 
     pos_arrastre = pos
 
-
 def manejar_soltar():
-    """Se llama al soltar el botón del mouse."""
     global arrastrando
     arrastrando = None
-
 
 def actualizar_necesidades():
     global baño, comer, dormir, jugar
@@ -516,10 +478,8 @@ def actualizar_necesidades():
         if tiempo_actual - inicio_noche >= DURACION_NOCHE:
             modo_noche = False
 
-
 def principal():
     ventana = pygame.display.get_surface()
-
     actualizar_necesidades()
 
     if subpantalla == "minijuegos":
@@ -579,7 +539,6 @@ def principal():
         dibujar_barra(ventana, barra_comer, "COMER", comer)
         dibujar_barra(ventana, barra_dormir, "DORMIR", dormir)
         dibujar_barra(ventana, barra_jugar, "JUGAR", jugar)
-
         dibujar_monedas(ventana)
 
     if mensaje_temporal and (pygame.time.get_ticks() - tiempo_mensaje < 2000):
